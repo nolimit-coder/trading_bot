@@ -50,7 +50,7 @@ class TradingBot:
         prev_idx = last_idx - 1
         is_psar_down_defined = not np.isnan(df["PSAR_DOWN"][last_idx])
         open_orders = self.exchange.fetch_open_orders(symbol=PAIR)
-        if (
+        return (
             len(open_orders) == 0
             and is_psar_down_defined
             and df["MACD_LINE"][last_idx] < 0
@@ -58,16 +58,14 @@ class TradingBot:
             and df["MACD_LINE"][prev_idx] < df["MACD_SIGNAL"][prev_idx]
             and df["Close"][last_idx] > df["EMA"][last_idx]
             and df["Close"][last_idx] > df["PSAR_DOWN"][last_idx]
-        ):
-            return True
-        return False
+        )
 
     def should_short(self, df):
         last_idx = len(df.index) - 1
         prev_idx = last_idx - 1
         is_psar_up_defined = not np.isnan(df["PSAR_UP"][last_idx])
         open_orders = self.exchange.fetch_open_orders(symbol=PAIR)
-        if (
+        return (
             len(open_orders) == 0
             and is_psar_up_defined
             and df["MACD_LINE"][last_idx] > 0
@@ -75,9 +73,7 @@ class TradingBot:
             and df["MACD_LINE"][prev_idx] > df["MACD_SIGNAL"][prev_idx]
             and df["Close"][last_idx] < df["EMA"][last_idx]
             and df["Close"][last_idx] < df["PSAR_UP"][last_idx]
-        ):
-            return True
-        return False
+        )
 
     def create_long_order(self, df):
         last_idx = len(df.index)
@@ -104,7 +100,7 @@ class TradingBot:
                 params=params,
             )
             print(
-                f"{quantity} BTC have been ordered at {quantity * close_price}$, Stop loss price = {psar_down}, take profit price = {2 * close_price - psar_down} . Current balance: {usdt_balance}"
+                f"{quantity} BTC have been ordered at {quantity * close_price}$. Stop loss price = {psar_down}, take profit price = {2 * close_price - psar_down} . Current balance: {usdt_balance}"
             )
         except Exception as e:
             print(f"create_long_order() failed: {e}")
